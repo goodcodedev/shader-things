@@ -1,0 +1,11 @@
+set(SOURCES "")
+set(_current_dir "")
+macro (set_dir dir)
+	set(_current_dir ${dir})
+endmacro()
+
+macro(add_sources source_list)
+	foreach(source_file ${ARGV})
+		list(APPEND SOURCES "${PROJECT_SOURCE_DIR}/${_current_dir}/${source_file}")
+	endforeach()
+endmacro()
