@@ -55,6 +55,8 @@ extern int yylineno;
 %token EQUAL
 %token ATTRIBUTE
 %token UNIFORM
+%token LAYOUT
+%token LOCATION
 %token IN
 %token OUT
 %token PLUS
@@ -77,6 +79,9 @@ extern int yylineno;
 %token LTE
 %token GTE
 %token EQ
+%token STRUCT
+%token HASH
+%token VERSION
 %type <ast> source
 %type <ast> function
 %type <ast> attribute_decl
@@ -97,6 +102,9 @@ extern int yylineno;
 %type <vector> arg_decl_list
 %type <enm> comp_op
 %type <enm> assign_op
+%type <ast> struct_decl
+%type <vector> struct_members
+%type <ast> version_decl
 
 %%
 source: nodes { result = new Source(reinterpret_cast<std::vector<AstNode*>*>($1)); }
@@ -111,13 +119,36 @@ nodes:		/* empty */ {
 			| nodes out_decl		{ $$ = push_node<AstNode>($1, $2); }
 			| nodes uniform_decl	{ $$ = push_node<AstNode>($1, $2); }
 			| nodes global_decl		{ $$ = push_node<AstNode>($1, $2); }
+			| nodes struct_decl 	{ $$ = push_node<AstNode>($1, $2); }
+			| nodes version_decl	{ $$ = push_node<AstNode>($1, $2); }
 			;
 
+version_decl: HASH VERSION INTCONST { $$ = new Version($3); };
 attribute_decl: ATTRIBUTE type IDENTIFIER SEMICOLON	{ $$ = new Attribute(itot($2), $3); };
-in_decl: IN type IDENTIFIER SEMICOLON				{ $$ = new In(itot($2), $3); };
+in_decl: IN type IDENTIFIER SEMICOLON				{ $$ = new In(itot($2), $3); }
+		| LAYOUT LEFT_PAREN LOCATION EQUAL INTCONST RIGHT_PAREN IN type IDENTIFIER SEMICOLON {
+			$$ = new In(itot($8), $9, $5);
+		}
+		;
 out_decl: OUT type IDENTIFIER SEMICOLON				{ $$ = new Out(itot($2), $3); };
 uniform_decl: UNIFORM type IDENTIFIER SEMICOLON		{ $$ = new Uniform(itot($2), $3); };
 global_decl: type IDENTIFIER EQUAL expression SEMICOLON	{ $$ = new TypedAssignment(itot($1), $2, re<Expression>($4)); };
+
+struct_decl: STRUCT IDENTIFIER LEFT_BRACE struct_members RIGHT_BRACE SEMICOLON {
+				$$ = new StructDecl(reinterpret_cast<std::vector<StructMember*>*>($4), $2);
+			}
+			| STRUCT IDENTIFIER LEFT_BRACE struct_members RIGHT_BRACE IDENTIFIER SEMICOLON {
+				$$ = new StructDecl(reinterpret_cast<std::vector<StructMember*>*>($4), $2, $6);
+			}
+			;
+
+struct_members: /* empty */ {
+				$$ = new std::vector<StructMember*>;
+			}
+			| struct_members type IDENTIFIER SEMICOLON {
+				$$ = push_node<StructMember>($1, new StructMember(itot($2), $3));
+			}
+			;
 
 function:	type IDENTIFIER LEFT_PAREN arg_decl_list RIGHT_PAREN block {
 				$$ = new Function(itot($1), $2, re<std::vector<ArgDecl*>>($4), re<Block>($6));

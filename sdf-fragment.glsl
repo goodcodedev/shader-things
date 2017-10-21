@@ -1,17 +1,23 @@
+#version 330
 uniform float iGlobalTime;
 uniform vec3 uCameraPos;
 uniform vec3 uCameraDir;
 uniform vec2 uViewport;
 out vec2 vPosition;
 out vec4 outColor;
+layout(location=1) in vec3 testing;
 
 float epsilon = 0.0001;
 float minDist = 1.0;
 float maxDist = 200.0;
 int marchingSteps = 300;
 
+struct external {
+	float sdfDist;
+} external;
+
 float sdfDist(vec3 point) {
-	return point - 1.0;
+	return external.sdfDist;
 }
 
 vec3 rayDirection(vec2 canvasPosition) {

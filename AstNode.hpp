@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <stdarg.h>
+#include <iostream>
 
 enum Type {
 	Void, Int, Float,
@@ -26,6 +27,39 @@ enum AssignOp {
 	BitIncOrAssign
 };
 
+enum NodeType {
+	SourceNode,
+	AttributeNode,
+	OutNode,
+	InNode,
+	UniformNode,
+	BlockNode,
+	ArgDeclNode,
+	FunctionNode,
+	ReturnNode,
+	PrePostFixNode,
+	IfNode,
+	ForLoopNode,
+	IntConstNode,
+	FloatConstNode,
+	ReferenceNode,
+	FieldReferenceNode,
+	BracedExprNode,
+	ComparisonNode,
+	MultiplyExprNode,
+	DivideExprNode,
+	PlusExprNode,
+	MinusExprNode,
+	FunctionCallNode,
+	TypeConstructorNode,
+	AssignmentNode,
+	OpAssignmentNode,
+	TypedAssignmentNode,
+	StructMemberNode,
+	StructDeclNode,
+	VersionNode
+};
+
 class FormatState {
 public:
 	int indent_count = 0;
@@ -46,11 +80,12 @@ public:
 
 class AstNode {
 public:
-	AstNode() {}
+	NodeType nodeType;
+	AstNode(NodeType nodeType): nodeType(nodeType) {}
 	virtual ~AstNode() {}
 	virtual void toString(std::string *str) {}
 	virtual void toStringF(std::string *str, FormatState *f) {}
-	static char* typeToStr(Type t) {
+	static std::string typeToStr(Type t) {
 		switch (t) {
 		case Void: return "void";
 		case Int: return "int";
@@ -66,7 +101,7 @@ public:
 		}
 		}
 	}
-	static char* compOpToStr(CompOp compOp) {
+	static std::string compOpToStr(CompOp compOp) {
 		switch (compOp) {
 		case Lt: return "<";
 		case Gt: return ">";
@@ -78,7 +113,7 @@ public:
 		}
 		}
 	}
-	static char* opAssignToStr(AssignOp op) {
+	static std::string opAssignToStr(AssignOp op) {
 		switch (op) {
 		case PlusAssign: return "+=";
 		case MinusAssign: return "-=";
@@ -95,23 +130,12 @@ public:
 		}
 		}
 	}
-	static char* fmt(const char *format, ...) {
-		va_list args;
-		va_start(args, format);
-		//size_t buf_size = vsnprintf(NULL, 0, format, args) + 1;
-		size_t buf_size = _vscprintf(format, args) + 1;
-		char *buf = reinterpret_cast<char*>(malloc(sizeof(char) * buf_size));
-		//vsprintf(buf, format, args);
-		vsprintf_s(buf, buf_size, format, args);
-		va_end(args);
-		return buf;
-	}
 };
 
 class Source : public AstNode {
 public:
 	std::vector<AstNode*> *nodes;
-	Source(std::vector<AstNode*> *nodes) : nodes(nodes) {}
+	Source(std::vector<AstNode*> *nodes) : AstNode(SourceNode), nodes(nodes) {}
 	~Source() {
 		for (AstNode* node : *nodes) delete node;
 		nodes->clear();
@@ -125,16 +149,60 @@ public:
 	void toStringF(std::string *str, FormatState *f);
 };
 
+class StructMember : public AstNode {
+public:
+	Type type;
+	std::string name;
+	StructMember(Type type, std::string name) : AstNode(StructMemberNode), type(type), name(name) {}
+	~StructMember() {}
+	void toString(std::string *str) {
+		*str += AstNode::typeToStr(type);
+		*str += " ";
+		*str += name;
+		*str += ";";
+	}
+	void toStringF(std::string *str, FormatState *f);
+};
+
+class StructDecl : public AstNode {
+public:
+	std::vector<StructMember*> *members;
+	std::string name;
+	std::string varName;
+	StructDecl(std::vector<StructMember*>* members, std::string name) : AstNode(StructDeclNode), members(members), name(name), varName("") {}
+	StructDecl(std::vector<StructMember*>* members, std::string name, std::string varName) 
+		: AstNode(StructDeclNode), members(members), name(name), varName(varName) {}
+	~StructDecl() {
+		for (StructMember* member : *members) delete member;
+		members->clear();
+		delete members;
+	}
+	void toString(std::string *str) {
+		*str += "struct{";
+		for (StructMember* member : *members) member->toString(str);
+		*str += "}";
+		if (varName.compare("") != 0) {
+			*str += " ";
+			*str += varName;
+		}
+		*str += ";";
+	}
+	void toStringF(std::string *str, FormatState *f);
+};
+
 class Attribute : public AstNode {
 public:
 	Type type;
-	char *name;
-	Attribute(Type type, char *name) : type(type), name(name) {}
+	std::string name;
+	Attribute(Type type, std::string name) : AstNode(AttributeNode), type(type), name(name) {}
 	~Attribute() {
-		free(name);
 	}
 	void toString(std::string *str) {
-		str->append(AstNode::fmt("attribute %s %s;", AstNode::typeToStr(type), name));
+		*str += "attribute ";
+		*str += AstNode::typeToStr(type);
+		*str += " ";
+		*str += name;
+		*str += ";";
 	}
 	void toStringF(std::string *str, FormatState *f);
 };
@@ -142,13 +210,16 @@ public:
 class Out : public AstNode {
 public:
 	Type type;
-	char *name;
-	Out(Type type, char *name) : type(type), name(name) {}
+	std::string name;
+	Out(Type type, std::string name) : AstNode(OutNode), type(type), name(name) {}
 	~Out() {
-		free(name);
 	}
 	void toString(std::string *str) {
-		str->append(AstNode::fmt("out %s %s;", AstNode::typeToStr(type), name));
+		*str += "out ";
+		*str += AstNode::typeToStr(type);
+		*str += " ";
+		*str += name;
+		*str += ";";
 	}
 	void toStringF(std::string *str, FormatState *f);
 };
@@ -156,13 +227,23 @@ public:
 class In : public AstNode {
 public:
 	Type type;
-	char *name;
-	In(Type type, char *name) : type(type), name(name) {}
+	std::string name;
+	int location;
+	In(Type type, std::string name) : AstNode(InNode), type(type), name(name), location(-1) {}
+	In(Type type, std::string name, int location) : AstNode(InNode), type(type), name(name), location(location) {}
 	~In() {
-		free(name);
 	}
 	void toString(std::string *str) {
-		str->append(AstNode::fmt("in %s %s;", AstNode::typeToStr(type), name));
+		if (location != -1) {
+			*str += "layout(location=";
+			*str += std::to_string(location);
+			*str += ") ";
+		}
+		*str += "in ";
+		*str += AstNode::typeToStr(type);
+		*str += " ";
+		*str += name;
+		*str += ";";
 	}
 	void toStringF(std::string *str, FormatState *f);
 };
@@ -170,13 +251,16 @@ public:
 class Uniform : public AstNode {
 public:
 	Type type;
-	char *name;
-	Uniform(Type type, char *name) : type(type), name(name) {}
+	std::string name;
+	Uniform(Type type, std::string name) : AstNode(UniformNode), type(type), name(name) {}
 	~Uniform() {
-		free(name);
 	}
 	void toString(std::string *str) {
-		str->append(AstNode::fmt("uniform %s %s;", AstNode::typeToStr(type), name));
+		*str += "uniform ";
+		*str += AstNode::typeToStr(type);
+		*str += " ";
+		*str += name;
+		*str += ";";
 	}
 	void toStringF(std::string *str, FormatState *f);
 };
@@ -184,14 +268,14 @@ public:
 class Statement : public AstNode {
 public:
 	bool isControlStruct;
-	Statement() : isControlStruct(false) {}
-	Statement(bool isControlStruct) : isControlStruct(isControlStruct) {}
+	Statement(NodeType nodeType) : AstNode(nodeType), isControlStruct(false) {}
+	Statement(NodeType nodeType, bool isControlStruct) : AstNode(nodeType), isControlStruct(isControlStruct) {}
 };
 
 class Block : public AstNode {
 public:
 	std::vector<Statement*> *statements;
-	Block(std::vector<Statement*> *statements) : statements(statements) {}
+	Block(std::vector<Statement*> *statements) : AstNode(BlockNode), statements(statements) {}
 	~Block() {
 		for (Statement* stm : *statements) delete stm;
 		statements->clear();
@@ -213,10 +297,9 @@ public:
 class ArgDecl : public AstNode {
 public:
 	Type type;
-	char *name;
-	ArgDecl(Type type, char *name) : type(type), name(name) {}
+	std::string name;
+	ArgDecl(Type type, std::string name) : AstNode(ArgDeclNode), type(type), name(name) {}
 	~ArgDecl() {
-		free(name);
 	}
 	void toString(std::string *str) {
 		str->append(AstNode::typeToStr(type));
@@ -229,11 +312,11 @@ public:
 class Function : public AstNode {
 public:
 	Type type;
-	char *name;
+	std::string name;
 	std::vector<ArgDecl*> *args;
 	Block *block;
-	Function(Type type, char *name, std::vector<ArgDecl*> *args, Block *block) :
-		type(type), name(name), args(args), block(block) {}
+	Function(Type type, std::string name, std::vector<ArgDecl*> *args, Block *block) :
+		AstNode(FunctionNode), type(type), name(name), args(args), block(block) {}
 	~Function() {
 		for (ArgDecl* arg : *args) delete arg;
 		args->clear();
@@ -259,6 +342,7 @@ public:
 
 class Expression : public AstNode {
 public:
+	Expression(NodeType nodeType) : AstNode(nodeType) {}
 	Expression * operator+(Expression *expr);
 	Expression * operator-(Expression *expr);
 	Expression * operator*(Expression *expr);
@@ -268,7 +352,7 @@ public:
 class Return : public Statement {
 public:
 	Expression *expr;
-	Return(Expression *expr) : expr(expr) {}
+	Return(Expression *expr) : Statement(ReturnNode), expr(expr) {}
 	~Return() {
 		delete expr;
 	}
@@ -281,13 +365,13 @@ public:
 
 class PrePostFix : public Expression, public Statement {
 public:
-	char *name;
+	std::string name;
 	bool postfix;
 	// Increment or decrement
 	bool incr;
-	PrePostFix(char *name, bool postfix, bool incr) : name(name), postfix(postfix), incr(incr) {}
+	PrePostFix(std::string name, bool postfix, bool incr) 
+		: Expression(PrePostFixNode), Statement(PrePostFixNode), name(name), postfix(postfix), incr(incr) {}
 	~PrePostFix() {
-		free(name);
 	}
 	void toString(std::string *str) {
 		if (postfix) {
@@ -309,9 +393,9 @@ public:
 	Expression *expr;
 	Block *ifBlock;
 	Block *elseBlock;
-	If(Expression *expr, Block *ifBlock) : expr(expr), ifBlock(ifBlock), elseBlock(NULL), Statement(true) {}
+	If(Expression *expr, Block *ifBlock) : Statement(IfNode, true), expr(expr), ifBlock(ifBlock), elseBlock(NULL) {}
 	If(Expression *expr, Block *ifBlock, Block *elseBlock)
-		: expr(expr), ifBlock(ifBlock), elseBlock(elseBlock), Statement(true) {}
+		: Statement(IfNode, true), expr(expr), ifBlock(ifBlock), elseBlock(elseBlock) {}
 	~If() {
 		delete expr;
 		delete ifBlock;
@@ -337,7 +421,7 @@ public:
 	Statement *iter;
 	Block *block;
 	ForLoop(Statement *init, Expression *test, Statement *iter, Block *block)
-		: init(init), test(test), iter(iter), block(block), Statement(true) {}
+		: Statement(ForLoopNode, true), init(init), test(test), iter(iter), block(block) {}
 	~ForLoop() {
 		delete init;
 		delete test;
@@ -360,7 +444,7 @@ public:
 class IntConst : public Expression {
 public:
 	int value;
-	IntConst(int value) : value(value) {}
+	IntConst(int value) : Expression(IntConstNode), value(value) {}
 	void toString(std::string *str) {
 		str->append(std::to_string(value));
 	}
@@ -371,49 +455,51 @@ class FloatConst : public Expression {
 public:
 	double value;
 	int decimals;
-	FloatConst(double value, int decimals) : value(value), decimals(decimals) {}
-	FloatConst(double value) : value(value) {
+	FloatConst(double value, int decimals) : Expression(FloatConstNode), value(value), decimals(decimals) {}
+	FloatConst(double value) : Expression(FloatConstNode), value(value) {
 		// Find last non-zero up to 10 positions
-		char *serialized = AstNode::fmt("%.10f", value);
-		int dotpos = (strrchr(serialized, '.') - serialized);
+		std::string serialized = std::to_string(value);
+		//int dotpos = (strrchr(serialized.c_str(), '.') - serialized);
+		int dotpos = serialized.find_last_of('.');
 		int num = 0;
-		for (int i = strlen(serialized) - 1; i > dotpos; --i) {
+		for (int i = serialized.length() - 1; i > dotpos; --i) {
 			if (serialized[i] != '0') {
 				num = i - dotpos;
 				break;
 			}
 		}
-		decimals = num;
-		free(serialized);
+		if (num > 0) decimals = num;
+		else decimals = 1;
 	}
-	FloatConst(char *str) {
-		int len = strlen(str);
+	FloatConst(std::string str) : Expression(FloatConstNode) {
+		int len = str.length();
 		if (len > 0) {
-			value = atof(str);
-			char *lastdot = strrchr(str, '.');
-			if (lastdot != NULL) {
-				decimals = len - (lastdot - str) - 1;
+			value = std::stod(str);
+			size_t dotpos = str.find_last_of('.');
+			if (dotpos  != std::string::npos) {
+				decimals = len - dotpos - 1;
+				if (decimals < 1) {
+					decimals = 1;
+				}
 			}
 			else {
-				decimals = 0;
+				decimals = 1;
 			}
 		}
 	}
 	void toString(std::string *str) {
-		std::string format("%.");
-		format.append(std::to_string(decimals));
-		format.append("f");
-		str->append(AstNode::fmt(format.c_str(), value));
+		std::string serialized = std::to_string(value);
+		std::string formatted = serialized.substr(0, serialized.find_last_of('.') + decimals + 1);
+		str->append(formatted);
 	}
 	void toStringF(std::string *str, FormatState *f);
 };
 
 class Reference : public Expression {
 public:
-	char *name;
-	Reference(char *name) : name(name) {}
+	std::string name;
+	Reference(std::string name) : Expression(ReferenceNode), name(name) {}
 	~Reference() {
-		free(name);
 	}
 	void toString(std::string *str) {
 		str->append(name);
@@ -424,11 +510,11 @@ public:
 class FieldReference : public Expression {
 public:
 	Expression *expr;
-	char *field;
-	FieldReference(Expression *expr, char *field) : expr(expr), field(field) {}
+	std::string field;
+	FieldReference(Expression *expr, std::string field) 
+		: Expression(FieldReferenceNode), expr(expr), field(field) {}
 	~FieldReference() {
 		delete expr;
-		free(field);
 	}
 	void toString(std::string *str) {
 		expr->toString(str);
@@ -441,7 +527,7 @@ public:
 class BracedExpr : public Expression {
 public:
 	Expression *expr;
-	BracedExpr(Expression *expr) : expr(expr) {}
+	BracedExpr(Expression *expr) : Expression(BracedExprNode), expr(expr) {}
 	~BracedExpr() {
 		delete expr;
 	}
@@ -459,7 +545,7 @@ public:
 	Expression *expr1;
 	Expression *expr2;
 	Comparison(CompOp compOp, Expression *expr1, Expression *expr2)
-		: compOp(compOp), expr1(expr1), expr2(expr2) {}
+		: Expression(ComparisonNode), compOp(compOp), expr1(expr1), expr2(expr2) {}
 	~Comparison() {
 		delete expr1;
 		delete expr2;
@@ -476,7 +562,7 @@ class MultiplyExpr : public Expression {
 public:
 	Expression *op1;
 	Expression *op2;
-	MultiplyExpr(Expression *op1, Expression *op2) : op1(op1), op2(op2) {}
+	MultiplyExpr(Expression *op1, Expression *op2) : Expression(MultiplyExprNode), op1(op1), op2(op2) {}
 	~MultiplyExpr() {
 		delete op1;
 		delete op2;
@@ -493,7 +579,7 @@ class DivideExpr : public Expression {
 public:
 	Expression *op1;
 	Expression *op2;
-	DivideExpr(Expression *op1, Expression *op2) : op1(op1), op2(op2) {}
+	DivideExpr(Expression *op1, Expression *op2) : Expression(DivideExprNode), op1(op1), op2(op2) {}
 	~DivideExpr() {
 		delete op1;
 		delete op2;
@@ -510,7 +596,7 @@ class PlusExpr : public Expression {
 public:
 	Expression *op1;
 	Expression *op2;
-	PlusExpr(Expression *op1, Expression *op2) : op1(op1), op2(op2) {}
+	PlusExpr(Expression *op1, Expression *op2) : Expression(PlusExprNode), op1(op1), op2(op2) {}
 	~PlusExpr() {
 		delete op1;
 		delete op2;
@@ -527,7 +613,7 @@ class MinusExpr : public Expression {
 public:
 	Expression *op1;
 	Expression *op2;
-	MinusExpr(Expression *op1, Expression *op2) : op1(op1), op2(op2) {}
+	MinusExpr(Expression *op1, Expression *op2) : Expression(MinusExprNode), op1(op1), op2(op2) {}
 	~MinusExpr() {
 		delete op1;
 		delete op2;
@@ -542,12 +628,11 @@ public:
 
 class FunctionCall : public Expression, public Statement {
 public:
-	char *name;
+	std::string name;
 	std::vector<Expression*> *args;
-	FunctionCall(char *name, std::vector<Expression*> *args)
-		: name(name), args(args) {}
+	FunctionCall(std::string name, std::vector<Expression*> *args)
+		: Expression(FunctionCallNode), Statement(FunctionCallNode), name(name), args(args) {}
 	~FunctionCall() {
-		free(name);
 	}
 	void toString(std::string *str) {
 		str->append(name);
@@ -568,7 +653,8 @@ class TypeConstructor : public Expression {
 public:
 	Type type;
 	std::vector<Expression*> *args;
-	TypeConstructor(Type type, std::vector<Expression*> *args) : type(type), args(args) {}
+	TypeConstructor(Type type, std::vector<Expression*> *args) 
+		: Expression(TypeConstructorNode), type(type), args(args) {}
 	~TypeConstructor() {
 		for (Expression *arg : *args) delete arg;
 		args->clear();
@@ -591,12 +677,11 @@ public:
 
 class Assignment : public Statement {
 public:
-	char *name;
+	std::string name;
 	Expression *expr;
-	Assignment(char *name, Expression *expr) :
-		name(name), expr(expr) {}
+	Assignment(std::string name, Expression *expr)
+		: Statement(AssignmentNode), name(name), expr(expr) {}
 	virtual ~Assignment() {
-		free(name);
 		delete expr;
 	}
 	void toString(std::string *str) {
@@ -610,12 +695,11 @@ public:
 class OpAssignment : public Statement {
 public:
 	AssignOp op;
-	char *name;
+	std::string name;
 	Expression *expr;
-	OpAssignment(AssignOp op, char *name, Expression *expr) :
-		op(op), name(name), expr(expr) {}
+	OpAssignment(AssignOp op, std::string name, Expression *expr)
+		: Statement(OpAssignmentNode), op(op), name(name), expr(expr) {}
 	~OpAssignment() {
-		free(name);
 		delete expr;
 	}
 	void toString(std::string *str) {
@@ -626,17 +710,34 @@ public:
 	void toStringF(std::string *str, FormatState *f);
 };
 
-class TypedAssignment : public Assignment {
+class TypedAssignment : public Statement {
 public:
 	Type type;
-	TypedAssignment(Type type, char *name, Expression *expr) :
-		Assignment(name, expr), type(type) {}
+	std::string name;
+	Expression *expr;
+	TypedAssignment(Type type, std::string name, Expression *expr)
+		: Statement(TypedAssignmentNode), type(type), name(name), expr(expr) {}
+	virtual ~TypedAssignment() {
+		delete expr;
+	}
 	void toString(std::string *str) {
 		str->append(AstNode::typeToStr(type));
 		str->append(" ");
 		str->append(name);
 		str->append("=");
 		expr->toString(str);
+	}
+	void toStringF(std::string *str, FormatState *f);
+};
+
+class Version : public AstNode {
+public:
+	int version;
+	Version(int version) : AstNode(VersionNode), version(version) {}
+	void toString(std::string *str) {
+		*str += "#version ";
+		*str += std::to_string(version);
+		*str += "\n";
 	}
 	void toStringF(std::string *str, FormatState *f);
 };

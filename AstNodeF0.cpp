@@ -27,3 +27,6 @@ void TypeConstructor::toStringF(std::string *str, int indent) {}
 void Assignment::toStringF(std::string *str, int indent) {}
 void OpAssignment::toStringF(std::string *str, int indent) {}
 void TypedAssignment::toStringF(std::string *str, int indent) {}
+void StructMember::toStringF(std::string *str, int indent) {}
+void StructDecl::toStringF(std::string *str, int indent) {}
+void Version::toStringF(std::string *str, FormatState *f) {}

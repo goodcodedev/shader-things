@@ -1,0 +1,8 @@
+#
+# fips-shader-things
+#
+---
+exports:
+  header-dirs: [ . ]
+  modules :
+    shader-things: .

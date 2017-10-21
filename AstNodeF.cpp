@@ -7,16 +7,37 @@ void Source::toStringF(std::string *str, FormatState *f) {
 	}
 }
 void Attribute::toStringF(std::string *str, FormatState *f) {
-	str->append(AstNode::fmt("attribute %s %s;", AstNode::typeToStr(type), name));
+	*str += "attribute ";
+	*str += AstNode::typeToStr(type);
+	*str += " ";
+	*str += name;
+	*str += ";";
 }
 void Out::toStringF(std::string *str, FormatState *f) {
-	str->append(AstNode::fmt("out %s %s;", AstNode::typeToStr(type), name));
+	*str += "out ";
+	*str += AstNode::typeToStr(type);
+	*str += " ";
+	*str += name;
+	*str += ";";
 }
 void In::toStringF(std::string *str, FormatState *f) {
-	str->append(AstNode::fmt("in %s %s;", AstNode::typeToStr(type), name));
+	if (location != -1) {
+		*str += "layout(location=";
+		*str += std::to_string(location);
+		*str += ") ";
+	}
+	*str += "in ";
+	*str += AstNode::typeToStr(type);
+	*str += " ";
+	*str += name;
+	*str += ";";
 }
 void Uniform::toStringF(std::string *str, FormatState *f) {
-	str->append(AstNode::fmt("uniform %s %s;", AstNode::typeToStr(type), name));
+	*str += "uniform ";
+	*str += AstNode::typeToStr(type);
+	*str += " ";
+	*str += name;
+	*str += ";";
 }
 void Block::toStringF(std::string *str, FormatState *f) {
 	str->append("{\n");
@@ -91,10 +112,9 @@ void IntConst::toStringF(std::string *str, FormatState *f) {
 	str->append(std::to_string(value));
 }
 void FloatConst::toStringF(std::string *str, FormatState *f) {
-	std::string format("%.");
-	format.append(std::to_string(decimals));
-	format.append("f");
-	str->append(AstNode::fmt(format.c_str(), value));
+	std::string serialized = std::to_string(value);
+	std::string formatted = serialized.substr(0, serialized.find_last_of('.') + decimals + 1);
+	str->append(formatted);
 }
 void Reference::toStringF(std::string *str, FormatState *f) {
 	str->append(name);
@@ -178,4 +198,36 @@ void TypedAssignment::toStringF(std::string *str, FormatState *f) {
 	str->append(name);
 	str->append(" = ");
 	expr->toStringF(str, f);
+}
+
+void StructMember::toStringF(std::string *str, FormatState *f) {
+	*str += AstNode::typeToStr(type);
+	*str += " ";
+	*str += name;
+	*str += ";";
+}
+
+void StructDecl::toStringF(std::string *str, FormatState *f) {
+	f->indent(str);
+	*str += "struct {\n";
+	++f->indent_count;
+	for (StructMember* member : *members) {
+		f->indent(str);
+		member->toString(str);
+		*str += "\n";
+	}
+	--f->indent_count;
+	f->indent(str);
+	*str += "}";
+	if (varName.compare("") != 0) {
+		*str += " ";
+		*str += varName;
+	}
+	*str += ";";
+}
+
+void Version::toStringF(std::string *str, FormatState *f) {
+	*str += "#version ";
+	*str += std::to_string(version);
+	*str += "\n";
 }

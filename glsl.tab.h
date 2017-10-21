@@ -1,13 +1,14 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 2.3.  */
 
-/* Bison interface for Yacc-like parsers in C
+/* Skeleton interface for Bison's Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
+   This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +16,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -30,92 +33,133 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_GLSL_TAB_H_INCLUDED
-# define YY_YY_GLSL_TAB_H_INCLUDED
-/* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-#if YYDEBUG
-extern int yydebug;
-#endif
-
-/* Token type.  */
+/* Tokens.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-  enum yytokentype
-  {
-    INTCONST = 258,
-    FLOATCONST = 259,
-    IDENTIFIER = 260,
-    VOID = 261,
-    INT = 262,
-    FLOAT = 263,
-    VEC2 = 264,
-    VEC3 = 265,
-    VEC4 = 266,
-    MAT2 = 267,
-    MAT3 = 268,
-    MAT4 = 269,
-    LEFT_BRACE = 270,
-    RIGHT_BRACE = 271,
-    LEFT_PAREN = 272,
-    RIGHT_PAREN = 273,
-    COMMA = 274,
-    SEMICOLON = 275,
-    EQUAL = 276,
-    ATTRIBUTE = 277,
-    UNIFORM = 278,
-    IN = 279,
-    OUT = 280,
-    PLUS = 281,
-    MINUS = 282,
-    STAR = 283,
-    SLASH = 284,
-    MODULUS = 285,
-    LEFT_SHIFT = 286,
-    RIGHT_SHIFT = 287,
-    AMPERSAND = 288,
-    CARET = 289,
-    PIPE = 290,
-    DOT = 291,
-    RETURN = 292,
-    IF = 293,
-    ELSE = 294,
-    FOR = 295,
-    LT = 296,
-    GT = 297,
-    LTE = 298,
-    GTE = 299,
-    EQ = 300
-  };
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     INTCONST = 258,
+     FLOATCONST = 259,
+     IDENTIFIER = 260,
+     VOID = 261,
+     INT = 262,
+     FLOAT = 263,
+     VEC2 = 264,
+     VEC3 = 265,
+     VEC4 = 266,
+     MAT2 = 267,
+     MAT3 = 268,
+     MAT4 = 269,
+     LEFT_BRACE = 270,
+     RIGHT_BRACE = 271,
+     LEFT_PAREN = 272,
+     RIGHT_PAREN = 273,
+     COMMA = 274,
+     SEMICOLON = 275,
+     EQUAL = 276,
+     ATTRIBUTE = 277,
+     UNIFORM = 278,
+     LAYOUT = 279,
+     LOCATION = 280,
+     IN = 281,
+     OUT = 282,
+     PLUS = 283,
+     MINUS = 284,
+     STAR = 285,
+     SLASH = 286,
+     MODULUS = 287,
+     LEFT_SHIFT = 288,
+     RIGHT_SHIFT = 289,
+     AMPERSAND = 290,
+     CARET = 291,
+     PIPE = 292,
+     DOT = 293,
+     RETURN = 294,
+     IF = 295,
+     ELSE = 296,
+     FOR = 297,
+     LT = 298,
+     GT = 299,
+     LTE = 300,
+     GTE = 301,
+     EQ = 302,
+     STRUCT = 303,
+     HASH = 304,
+     VERSION = 305
+   };
 #endif
+/* Tokens.  */
+#define INTCONST 258
+#define FLOATCONST 259
+#define IDENTIFIER 260
+#define VOID 261
+#define INT 262
+#define FLOAT 263
+#define VEC2 264
+#define VEC3 265
+#define VEC4 266
+#define MAT2 267
+#define MAT3 268
+#define MAT4 269
+#define LEFT_BRACE 270
+#define RIGHT_BRACE 271
+#define LEFT_PAREN 272
+#define RIGHT_PAREN 273
+#define COMMA 274
+#define SEMICOLON 275
+#define EQUAL 276
+#define ATTRIBUTE 277
+#define UNIFORM 278
+#define LAYOUT 279
+#define LOCATION 280
+#define IN 281
+#define OUT 282
+#define PLUS 283
+#define MINUS 284
+#define STAR 285
+#define SLASH 286
+#define MODULUS 287
+#define LEFT_SHIFT 288
+#define RIGHT_SHIFT 289
+#define AMPERSAND 290
+#define CARET 291
+#define PIPE 292
+#define DOT 293
+#define RETURN 294
+#define IF 295
+#define ELSE 296
+#define FOR 297
+#define LT 298
+#define GT 299
+#define LTE 300
+#define GTE 301
+#define EQ 302
+#define STRUCT 303
+#define HASH 304
+#define VERSION 305
 
-/* Value type.  */
+
+
+
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
-union YYSTYPE
+typedef union YYSTYPE
+#line 28 "../glsl.y"
 {
-#line 28 "../glsl.y" /* yacc.c:1909  */
-
 	int ival;
 	double fval;
 	char *sval;
 	void *ast;
 	void *vector;
 	int enm;
-
-#line 109 "../glsl.tab.h" /* yacc.c:1909  */
-};
-
-typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
+}
+/* Line 1529 of yacc.c.  */
+#line 158 "../glsl.tab.h"
+	YYSTYPE;
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
+# define YYSTYPE_IS_TRIVIAL 1
 #endif
-
 
 extern YYSTYPE yylval;
 
-int yyparse (void);
-
-#endif /* !YY_YY_GLSL_TAB_H_INCLUDED  */
