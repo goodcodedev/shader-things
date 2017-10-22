@@ -88,6 +88,18 @@ void PrePostFix::toStringF(std::string *str, FormatState *f) {
 		str->append(name);
 	}
 }
+void PrePostFixStm::toStringF(std::string *str, FormatState *f) {
+	if (postfix) {
+		str->append(name);
+		if (incr) str->append("++");
+		else str->append("--");
+	}
+	else {
+		if (incr) str->append("++");
+		else str->append("--");
+		str->append(name);
+	}
+}
 void If::toStringF(std::string *str, FormatState *f) {
 	str->append("if (");
 	expr->toStringF(str, f);
@@ -157,6 +169,18 @@ void MinusExpr::toStringF(std::string *str, FormatState *f) {
 	op2->toStringF(str, f);
 }
 void FunctionCall::toStringF(std::string *str, FormatState *f) {
+	str->append(name);
+	str->append("(");
+	for (std::vector<Expression*>::iterator it = args->begin();
+		it != args->end(); ++it) {
+		if (it != args->begin()) {
+			str->append(", ");
+		}
+		(*it)->toStringF(str, f);
+	}
+	str->append(")");
+}
+void FunctionCallStm::toStringF(std::string *str, FormatState *f) {
 	str->append(name);
 	str->append("(");
 	for (std::vector<Expression*>::iterator it = args->begin();

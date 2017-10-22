@@ -38,6 +38,7 @@ enum NodeType {
 	FunctionNode,
 	ReturnNode,
 	PrePostFixNode,
+	PrePostFixStmNode,
 	IfNode,
 	ForLoopNode,
 	IntConstNode,
@@ -51,6 +52,7 @@ enum NodeType {
 	PlusExprNode,
 	MinusExprNode,
 	FunctionCallNode,
+	FunctionCallStmNode,
 	TypeConstructorNode,
 	AssignmentNode,
 	OpAssignmentNode,
@@ -363,15 +365,40 @@ public:
 	void toStringF(std::string *str, FormatState *f);
 };
 
-class PrePostFix : public Expression, public Statement {
+class PrePostFix : public Expression {
 public:
 	std::string name;
 	bool postfix;
 	// Increment or decrement
 	bool incr;
 	PrePostFix(std::string name, bool postfix, bool incr) 
-		: Expression(PrePostFixNode), Statement(PrePostFixNode), name(name), postfix(postfix), incr(incr) {}
+		: Expression(PrePostFixNode), name(name), postfix(postfix), incr(incr) {}
 	~PrePostFix() {
+	}
+	void toString(std::string *str) {
+		if (postfix) {
+			str->append(name);
+			if (incr) str->append("++");
+			else str->append("--");
+		}
+		else {
+			if (incr) str->append("++");
+			else str->append("--");
+			str->append(name);
+		}
+	}
+	void toStringF(std::string *str, FormatState *f);
+};
+
+class PrePostFixStm : public Statement {
+public:
+	std::string name;
+	bool postfix;
+	// Increment or decrement
+	bool incr;
+	PrePostFixStm(std::string name, bool postfix, bool incr) 
+		: Statement(PrePostFixStmNode), name(name), postfix(postfix), incr(incr) {}
+	~PrePostFixStm() {
 	}
 	void toString(std::string *str) {
 		if (postfix) {
@@ -626,13 +653,36 @@ public:
 	void toStringF(std::string *str, FormatState *f);
 };
 
-class FunctionCall : public Expression, public Statement {
+class FunctionCall : public Expression {
 public:
 	std::string name;
 	std::vector<Expression*> *args;
 	FunctionCall(std::string name, std::vector<Expression*> *args)
-		: Expression(FunctionCallNode), Statement(FunctionCallNode), name(name), args(args) {}
+		: Expression(FunctionCallNode), name(name), args(args) {}
 	~FunctionCall() {
+	}
+	void toString(std::string *str) {
+		str->append(name);
+		str->append("(");
+		for (std::vector<Expression*>::iterator it = args->begin();
+			it != args->end(); ++it) {
+			if (it != args->begin()) {
+				str->append(",");
+			}
+			(*it)->toString(str);
+		}
+		str->append(")");
+	}
+	void toStringF(std::string *str, FormatState *f);
+};
+
+class FunctionCallStm : public Statement {
+public:
+	std::string name;
+	std::vector<Expression*> *args;
+	FunctionCallStm(std::string name, std::vector<Expression*> *args)
+		: Statement(FunctionCallStmNode), name(name), args(args) {}
+	~FunctionCallStm() {
 	}
 	void toString(std::string *str) {
 		str->append(name);

@@ -11,6 +11,7 @@ fips_begin_module(shader-things)
     fips_files(
         lex.yy.cpp glsl.tab.h glsl.tab.cpp
         AstNode.hpp AstNode.cpp AstNodeF.cpp
+        AstVisitor.hpp AstExternals.hpp
         shader.hpp shader.cpp
         sdf-shader.hpp sdf-shader.cpp
     )

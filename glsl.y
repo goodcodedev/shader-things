@@ -181,12 +181,12 @@ statement:	type IDENTIFIER EQUAL expression {
 				$$ = new OpAssignment(static_cast<AssignOp>($2), $1, re<Expression>($3));
 			}
 			| IDENTIFIER LEFT_PAREN arg_list RIGHT_PAREN { 
-				$$ = new FunctionCall($1, reinterpret_cast<std::vector<Expression*>*>($3));
+				$$ = new FunctionCallStm($1, reinterpret_cast<std::vector<Expression*>*>($3));
 			}
-			| IDENTIFIER PLUS PLUS { $$ = new PrePostFix($1, true, true); }
-			| IDENTIFIER MINUS MINUS { $$ = new PrePostFix($1, true, false); }
-			| PLUS PLUS IDENTIFIER { $$ = new PrePostFix($3, false, true); }
-			| MINUS MINUS IDENTIFIER { $$ = new PrePostFix($3, false, false); }
+			| IDENTIFIER PLUS PLUS { $$ = new PrePostFixStm($1, true, true); }
+			| IDENTIFIER MINUS MINUS { $$ = new PrePostFixStm($1, true, false); }
+			| PLUS PLUS IDENTIFIER { $$ = new PrePostFixStm($3, false, true); }
+			| MINUS MINUS IDENTIFIER { $$ = new PrePostFixStm($3, false, false); }
 			| RETURN expression {
 				$$ = new Return(re<Expression>($2));
 			}

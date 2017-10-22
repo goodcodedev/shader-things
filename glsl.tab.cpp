@@ -1804,28 +1804,28 @@ yyreduce:
   case 31:
 #line 183 "../glsl.y"
     { 
-				(yyval.ast) = new FunctionCall((yyvsp[(1) - (4)].sval), reinterpret_cast<std::vector<Expression*>*>((yyvsp[(3) - (4)].vector)));
+				(yyval.ast) = new FunctionCallStm((yyvsp[(1) - (4)].sval), reinterpret_cast<std::vector<Expression*>*>((yyvsp[(3) - (4)].vector)));
 			;}
     break;
 
   case 32:
 #line 186 "../glsl.y"
-    { (yyval.ast) = new PrePostFix((yyvsp[(1) - (3)].sval), true, true); ;}
+    { (yyval.ast) = new PrePostFixStm((yyvsp[(1) - (3)].sval), true, true); ;}
     break;
 
   case 33:
 #line 187 "../glsl.y"
-    { (yyval.ast) = new PrePostFix((yyvsp[(1) - (3)].sval), true, false); ;}
+    { (yyval.ast) = new PrePostFixStm((yyvsp[(1) - (3)].sval), true, false); ;}
     break;
 
   case 34:
 #line 188 "../glsl.y"
-    { (yyval.ast) = new PrePostFix((yyvsp[(3) - (3)].sval), false, true); ;}
+    { (yyval.ast) = new PrePostFixStm((yyvsp[(3) - (3)].sval), false, true); ;}
     break;
 
   case 35:
 #line 189 "../glsl.y"
-    { (yyval.ast) = new PrePostFix((yyvsp[(3) - (3)].sval), false, false); ;}
+    { (yyval.ast) = new PrePostFixStm((yyvsp[(3) - (3)].sval), false, false); ;}
     break;
 
   case 36:

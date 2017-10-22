@@ -15,12 +15,13 @@ public:
     virtual void visitFunction(Function *function) = 0;
     virtual void visitReturn(Return *returnNode) = 0;
     virtual void visitPrePostFix(PrePostFix *prePostFix) = 0;
+    virtual void visitPrePostFixStm(PrePostFixStm *prePostFix) = 0;
     virtual void visitIf(If *ifNode) = 0;
     virtual void visitForLoop(ForLoop *forLoop) = 0;
     virtual void visitIntConst(IntConst *intConst) = 0;
     virtual void visitFloatConst(FloatConst *floatConst) = 0;
     virtual void visitReference(Reference *reference) = 0;
-    virtual void visitFieldReference(FieldReference *fieldReference) = 0;
+    virtual void visitFieldReference(FieldReference *ref) = 0;
     virtual void visitBracedExpr(BracedExpr *bracedExpr) = 0;
     virtual void visitComparison(Comparison *comparison) = 0;
     virtual void visitMultiplyExpr(MultiplyExpr *expr) = 0;
@@ -28,6 +29,7 @@ public:
     virtual void visitPlusExpr(PlusExpr *expr) = 0;
     virtual void visitMinusExpr(MinusExpr *expr) = 0;
     virtual void visitFunctionCall(FunctionCall *call) = 0;
+    virtual void visitFunctionCallStm(FunctionCallStm *call) = 0;
     virtual void visitTypeConstructor(TypeConstructor *constructor) = 0;
     virtual void visitAssignment(Assignment *assignment) = 0;
     virtual void visitOpAssignment(OpAssignment *assignment) = 0;
@@ -42,43 +44,43 @@ public:
     virtual void visitSource(Source *source) {
         for (AstNode *node : *source->nodes) {
             switch (node->nodeType) {
-                case FunctionNode: visitFunction(reinterpret_cast<Function*>(node)); break;
-                case AttributeNode: visitAttribute(reinterpret_cast<Attribute*>(node)); break;
-                case InNode: visitIn(reinterpret_cast<In*>(node)); break;
-                case OutNode: visitOut(reinterpret_cast<Out*>(node)); break;
-                case UniformNode: visitUniform(reinterpret_cast<Uniform*>(node)); break;
-                case TypedAssignmentNode: visitTypedAssignment(reinterpret_cast<TypedAssignment*>(node)); break;
-                case StructDeclNode: visitStructDecl(reinterpret_cast<StructDecl*>(node)); break;
-                case VersionNode: visitVersion(reinterpret_cast<Version*>(node)); break;
+                case FunctionNode: visitFunction(static_cast<Function*>(node)); break;
+                case AttributeNode: visitAttribute(static_cast<Attribute*>(node)); break;
+                case InNode: visitIn(static_cast<In*>(node)); break;
+                case OutNode: visitOut(static_cast<Out*>(node)); break;
+                case UniformNode: visitUniform(static_cast<Uniform*>(node)); break;
+                case TypedAssignmentNode: visitTypedAssignment(static_cast<TypedAssignment*>(node)); break;
+                case StructDeclNode: visitStructDecl(static_cast<StructDecl*>(node)); break;
+                case VersionNode: visitVersion(static_cast<Version*>(node)); break;
                 default: {}
             }
         }
     }
     virtual void visitStatement(AstNode *node) {
         switch (node->nodeType) {
-            case TypedAssignmentNode: visitTypedAssignment(reinterpret_cast<TypedAssignment*>(node)); break;
-            case AssignmentNode: visitAssignment(reinterpret_cast<Assignment*>(node)); break;
-            case OpAssignmentNode: visitOpAssignment(reinterpret_cast<OpAssignment*>(node)); break;
-            case FunctionCallNode: visitFunctionCall(reinterpret_cast<FunctionCall*>(node)); break;
-            case PrePostFixNode: visitPrePostFix(reinterpret_cast<PrePostFix*>(node)); break;
-            case ReturnNode: visitReturn(reinterpret_cast<Return*>(node)); break;
+            case TypedAssignmentNode: visitTypedAssignment(static_cast<TypedAssignment*>(node)); break;
+            case AssignmentNode: visitAssignment(static_cast<Assignment*>(node)); break;
+            case OpAssignmentNode: visitOpAssignment(static_cast<OpAssignment*>(node)); break;
+            case FunctionCallStmNode: visitFunctionCallStm(static_cast<FunctionCallStm*>(node)); break;
+            case PrePostFixStmNode: visitPrePostFixStm(static_cast<PrePostFixStm*>(node)); break;
+            case ReturnNode: visitReturn(static_cast<Return*>(node)); break;
             default: {}
         }
     }
     virtual void visitExpression(AstNode *node) {
         switch (node->nodeType) {
-            case FloatConstNode: visitFloatConst(reinterpret_cast<FloatConst>(node)); break;
-            case IntConstNode: visitIntConst(reinterpret_cast<IntConst>(node)); break;
-            case TypeConstructorNode: visitTypeConstructor(reinterpret_cast<TypeConstructor>(node)); break;
-            case FunctionCallNode: visitFunctionCall(reinterpret_cast<FunctionCall>(node)); break;
-            case ReferenceNode: visitReference(reinterpret_cast<Reference>(node)); break;
-            case FieldReferenceNode: visitFieldReference(reinterpret_cast<FieldReference>(node)); break;
-            case MultiplyExprNode: visitMultiplyExpr(reinterpret_cast<MultiplyExpr>(node)); break;
-            case DivideExprNode: visitDivideExpr(reinterpret_cast<DivideExpr>(node)); break;
-            case PlusExprNode: visitPlusExpr(reinterpret_cast<PlusExpr>(node)); break;
-            case MinusExprNode: visitMinusExpr(reinterpret_cast<MinusExpr>(node)); break;
-            case BracedExprNode: visitBracedExpr(reinterpret_cast<BracedExpr>(node)); break;
-            case ComparisonNode: visitComparison(reinterpret_cast<Comparison>(node)); break;
+            case FloatConstNode: visitFloatConst(static_cast<FloatConst*>(node)); break;
+            case IntConstNode: visitIntConst(static_cast<IntConst*>(node)); break;
+            case TypeConstructorNode: visitTypeConstructor(static_cast<TypeConstructor*>(node)); break;
+            case FunctionCallNode: visitFunctionCall(static_cast<FunctionCall*>(node)); break;
+            case ReferenceNode: visitReference(static_cast<Reference*>(node)); break;
+            case FieldReferenceNode: visitFieldReference(static_cast<FieldReference*>(node)); break;
+            case MultiplyExprNode: visitMultiplyExpr(static_cast<MultiplyExpr*>(node)); break;
+            case DivideExprNode: visitDivideExpr(static_cast<DivideExpr*>(node)); break;
+            case PlusExprNode: visitPlusExpr(static_cast<PlusExpr*>(node)); break;
+            case MinusExprNode: visitMinusExpr(static_cast<MinusExpr*>(node)); break;
+            case BracedExprNode: visitBracedExpr(static_cast<BracedExpr*>(node)); break;
+            case ComparisonNode: visitComparison(static_cast<Comparison*>(node)); break;
             default: {}
         }
     }
@@ -99,9 +101,10 @@ public:
         visitBlock(function->block);
     }
     virtual void visitReturn(Return *returnNode) {
-        visitExpression(ReturnNode->expr);
+        visitExpression(returnNode->expr);
     }
     virtual void visitPrePostFix(PrePostFix *prePostFix) {}
+    virtual void visitPrePostFixStm(PrePostFixStm *prePostFix) {}
     virtual void visitIf(If *ifNode) {
         visitExpression(ifNode->expr);
         visitBlock(ifNode->ifBlock);
@@ -118,9 +121,9 @@ public:
     virtual void visitIntConst(IntConst *intConst) {}
     virtual void visitFloatConst(FloatConst *floatConst) {}
     virtual void visitReference(Reference *reference) {}
-    virtual void visitFieldReference(FieldReference *fieldReference) {}
+    virtual void visitFieldReference(FieldReference *ref) {}
     virtual void visitBracedExpr(BracedExpr *bracedExpr) {
-        visitExpression(BracedExpr->expr);
+        visitExpression(bracedExpr->expr);
     }
     virtual void visitComparison(Comparison *comparison) {
         visitExpression(comparison->expr1);
@@ -143,12 +146,17 @@ public:
         visitExpression(expr->op2);
     }
     virtual void visitFunctionCall(FunctionCall *call) {
-        for (Expression *arg : call->args) {
+        for (Expression *arg : *call->args) {
+            visitExpression(arg);
+        }
+    }
+    virtual void visitFunctionCallStm(FunctionCallStm *call) {
+        for (Expression *arg : *call->args) {
             visitExpression(arg);
         }
     }
     virtual void visitTypeConstructor(TypeConstructor *constructor) {
-        for (Expression *arg : constructor->args) {
+        for (Expression *arg : *constructor->args) {
             visitExpression(arg);
         }
     }
@@ -163,28 +171,30 @@ public:
     }
     virtual void visitStructMember(StructMember *member) {}
     virtual void visitStructDecl(StructDecl *decl) {
-        for (StructMember *member : decl->members) {
-            visitArgDecl(member);
+        for (StructMember *member : *decl->members) {
+            visitStructMember(member);
         }
     }
     virtual void visitVersion(Version *version) {}
 };
 
-class AstVisitorTransform : public AstVisitor {
+// If you transform a node, then clean up/delete the previous one
+// the same place. This allows better control in reusing parts of the node.
+class AstVisitorTransform {
 private:
     // Allows passing in NULL to delete objects
     template<typename T>
-    static void toVec(std::vector<T*> nodes, T *node) {
+    static void toVec(std::vector<T*>* nodes, T *node) {
         if (node != NULL) {
-            nodes.push_back(node);
+            nodes->push_back(node);
         }
     }
     template<typename T>
     static std::vector<T*>* checkNodes(std::vector<T*>* newNodes, std::vector<T*>* curNodes) {
         // Check if equal, in which case return the current
-        if (newNodes.size() == curNodes.size()) {
+        if (newNodes->size() == curNodes->size()) {
             bool isEqual = true;
-            for (int i = 0; i < curNodes.size(); i++) {
+            for (int i = 0; i < int(curNodes->size()); i++) {
                 if (newNodes[i] != curNodes[i]) {
                     isEqual = false;
                     break;
@@ -214,17 +224,17 @@ private:
     }
 public:
     virtual Source* visitSource(Source *source) {
-        std::vector<AstNode*> newNodes = new std::vector<AstNode*>();
+        std::vector<AstNode*> *newNodes = new std::vector<AstNode*>();
         for (AstNode *node : *source->nodes) {
             switch (node->nodeType) {
-                case FunctionNode: toVec<AstNode>(newNodes, visitFunction(reinterpret_cast<Function*>(node))); break;
-                case AttributeNode: toVec<AstNode>(newNodes, visitAttribute(reinterpret_cast<Attribute*>(node))); break;
-                case InNode: toVec<AstNode>(newNodes, visitIn(reinterpret_cast<In*>(node))); break;
-                case OutNode: toVec<AstNode>(newNodes, visitOut(reinterpret_cast<Out*>(node))); break;
-                case UniformNode: toVec<AstNode>(newNodes, visitUniform(reinterpret_cast<Uniform*>(node))); break;
-                case TypedAssignmentNode: toVec<AstNode>(newNodes, visitTypedAssignment(reinterpret_cast<TypedAssignment*>(node))); break;
-                case StructDeclNode: toVec<AstNode>(newNodes, visitStructDecl(reinterpret_cast<StructDecl*>(node))); break;
-                case VersionNode: toVec<AstNode>(newNodes, visitVersion(reinterpret_cast<Version*>(node))); break;
+                case FunctionNode: toVec<AstNode>(newNodes, visitFunction(static_cast<Function*>(node))); break;
+                case AttributeNode: toVec<AstNode>(newNodes, visitAttribute(static_cast<Attribute*>(node))); break;
+                case InNode: toVec<AstNode>(newNodes, visitIn(static_cast<In*>(node))); break;
+                case OutNode: toVec<AstNode>(newNodes, visitOut(static_cast<Out*>(node))); break;
+                case UniformNode: toVec<AstNode>(newNodes, visitUniform(static_cast<Uniform*>(node))); break;
+                case TypedAssignmentNode: toVec<AstNode>(newNodes, visitTypedAssignment(static_cast<TypedAssignment*>(node))); break;
+                case StructDeclNode: toVec<AstNode>(newNodes, visitStructDecl(static_cast<StructDecl*>(node))); break;
+                case VersionNode: toVec<AstNode>(newNodes, visitVersion(static_cast<Version*>(node))); break;
                 default: { toVec<AstNode>(newNodes, node); }
             }
         }
@@ -233,29 +243,29 @@ public:
     }
     virtual Statement* visitStatement(Statement *node) {
         switch (node->nodeType) {
-            case TypedAssignmentNode:   return visitTypedAssignment(reinterpret_cast<TypedAssignment*>(node));
-            case AssignmentNode:        return visitAssignment(reinterpret_cast<Assignment*>(node));
-            case OpAssignmentNode:      return visitOpAssignment(reinterpret_cast<OpAssignment*>(node));
-            case FunctionCallNode:      return visitFunctionCall(reinterpret_cast<FunctionCall*>(node));
-            case PrePostFixNode:        return visitPrePostFix(reinterpret_cast<PrePostFix*>(node));
-            case ReturnNode:            return visitReturn(reinterpret_cast<Return*>(node));
+            case TypedAssignmentNode:   return visitTypedAssignment(static_cast<TypedAssignment*>(node));
+            case AssignmentNode:        return visitAssignment(static_cast<Assignment*>(node));
+            case OpAssignmentNode:      return visitOpAssignment(static_cast<OpAssignment*>(node));
+            case FunctionCallStmNode:   return visitFunctionCallStm(static_cast<FunctionCallStm*>(node));
+            case PrePostFixStmNode:     return visitPrePostFixStm(static_cast<PrePostFixStm*>(node));
+            case ReturnNode:            return visitReturn(static_cast<Return*>(node));
             default: { return NULL; }
         }
     }
     virtual Expression* visitExpression(Expression *node) {
         switch (node->nodeType) {
-            case FloatConstNode:        return visitFloatConst(reinterpret_cast<FloatConst>(node));
-            case IntConstNode:          return visitIntConst(reinterpret_cast<IntConst>(node));
-            case TypeConstructorNode:   return visitTypeConstructor(reinterpret_cast<TypeConstructor>(node));
-            case FunctionCallNode:      return visitFunctionCall(reinterpret_cast<FunctionCall>(node));
-            case ReferenceNode:         return visitReference(reinterpret_cast<Reference>(node));
-            case FieldReferenceNode:    return visitFieldReference(reinterpret_cast<FieldReference>(node));
-            case MultiplyExprNode:      return visitMultiplyExpr(reinterpret_cast<MultiplyExpr>(node));
-            case DivideExprNode:        return visitDivideExpr(reinterpret_cast<DivideExpr>(node));
-            case PlusExprNode:          return visitPlusExpr(reinterpret_cast<PlusExpr>(node));
-            case MinusExprNode:         return visitMinusExpr(reinterpret_cast<MinusExpr>(node));
-            case BracedExprNode:        return visitBracedExpr(reinterpret_cast<BracedExpr>(node));
-            case ComparisonNode:        return visitComparison(reinterpret_cast<Comparison>(node));
+            case FloatConstNode:        return visitFloatConst(static_cast<FloatConst*>(node));
+            case IntConstNode:          return visitIntConst(static_cast<IntConst*>(node));
+            case TypeConstructorNode:   return visitTypeConstructor(static_cast<TypeConstructor*>(node));
+            case FunctionCallNode:      return visitFunctionCall(static_cast<FunctionCall*>(node));
+            case ReferenceNode:         return visitReference(static_cast<Reference*>(node));
+            case FieldReferenceNode:    return visitFieldReference(static_cast<FieldReference*>(node));
+            case MultiplyExprNode:      return visitMultiplyExpr(static_cast<MultiplyExpr*>(node));
+            case DivideExprNode:        return visitDivideExpr(static_cast<DivideExpr*>(node));
+            case PlusExprNode:          return visitPlusExpr(static_cast<PlusExpr*>(node));
+            case MinusExprNode:         return visitMinusExpr(static_cast<MinusExpr*>(node));
+            case BracedExprNode:        return visitBracedExpr(static_cast<BracedExpr*>(node));
+            case ComparisonNode:        return visitComparison(static_cast<Comparison*>(node));
             default: { return NULL; }
         }
     }
@@ -272,20 +282,20 @@ public:
         return uniform;
     }
     virtual Block* visitBlock(Block *block) {
-        std::vector<Statement*> newNodes = new std::vector<Statement*>();
+        std::vector<Statement*> *newNodes = new std::vector<Statement*>();
         for (Statement *node : *block->statements) {
             toVec<Statement>(newNodes, visitStatement(node));
         }
-        block->statements = checkNodes<<Statement>AstNode>(newNodes, block->statements);
+        block->statements = checkNodes<Statement>(newNodes, block->statements);
         return block;
     }
     virtual ArgDecl* visitArgDecl(ArgDecl *argDecl) {
         return argDecl;
     }
     virtual Function* visitFunction(Function *function) {
-        std::vector<ArgDecl*> newNodes = new std::vector<ArgDecl*>();
+        std::vector<ArgDecl*> *newNodes = new std::vector<ArgDecl*>();
         for (ArgDecl *arg : *function->args) {
-            toVec<ArgDecl>(visitArgDecl(arg));
+            toVec<ArgDecl>(newNodes, visitArgDecl(arg));
         }
         function->args = checkNodes<ArgDecl>(newNodes, function->args);
         function->block = visitBlock(function->block);
@@ -298,7 +308,10 @@ public:
     virtual Expression* visitPrePostFix(PrePostFix *prePostFix) {
         return prePostFix;
     }
-    virtual If visitIf(If *ifNode) {
+    virtual Statement* visitPrePostFixStm(PrePostFixStm *prePostFix) {
+        return prePostFix;
+    }
+    virtual If* visitIf(If *ifNode) {
         ifNode->expr = visitExpression(ifNode->expr);
         ifNode->ifBlock = visitBlock(ifNode->ifBlock);
         if (ifNode->elseBlock != NULL) {
@@ -322,8 +335,8 @@ public:
     virtual Expression* visitReference(Reference *reference) {
         return reference;
     }
-    virtual Expression* visitFieldReference(FieldReference *fieldReference) {
-        return FieldReference;
+    virtual Expression* visitFieldReference(FieldReference *ref) {
+        return ref;
     }
     virtual Expression* visitBracedExpr(BracedExpr *bracedExpr) {
         bracedExpr->expr = visitExpression(bracedExpr->expr);
@@ -355,16 +368,24 @@ public:
         return expr;
     }
     virtual Expression* visitFunctionCall(FunctionCall *call) {
-        std::vector<Expression*> newNodes = new std::vector<Expression*>();
-        for (Expression *arg : call->args) {
+        std::vector<Expression*> *newNodes = new std::vector<Expression*>();
+        for (Expression *arg : *call->args) {
+            toVec<Expression>(newNodes, visitExpression(arg));
+        }
+        call->args = checkNodes<Expression>(newNodes, call->args);
+        return call;
+    }
+    virtual Statement* visitFunctionCallStm(FunctionCallStm *call) {
+        std::vector<Expression*> *newNodes = new std::vector<Expression*>();
+        for (Expression *arg : *call->args) {
             toVec<Expression>(newNodes, visitExpression(arg));
         }
         call->args = checkNodes<Expression>(newNodes, call->args);
         return call;
     }
     virtual TypeConstructor* visitTypeConstructor(TypeConstructor *constructor) {
-        std::vector<Expression*> newNodes = new std::vector<Expression*>();
-        for (Expression *arg : constructor->args) {
+        std::vector<Expression*> *newNodes = new std::vector<Expression*>();
+        for (Expression *arg : *constructor->args) {
             toVec<Expression>(newNodes, visitExpression(arg));
         }
         constructor->args = checkNodes<Expression>(newNodes, constructor->args);
@@ -386,9 +407,9 @@ public:
         return member;
     }
     virtual StructDecl* visitStructDecl(StructDecl *decl) {
-        std::vector<StructMember*> newNodes = new std::vector<StructMember*>();
-        for (StructMember *member : decl->members) {
-            toVec<StructMember>(newNodes, visitArgDecl(member));
+        std::vector<StructMember*> *newNodes = new std::vector<StructMember*>();
+        for (StructMember *member : *decl->members) {
+            toVec<StructMember>(newNodes, visitStructMember(member));
         }
         decl->members = checkNodes<StructMember>(newNodes, decl->members);
         return decl;
