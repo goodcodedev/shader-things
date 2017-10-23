@@ -3,6 +3,9 @@
 void Source::toStringF(std::string *str, FormatState *f) {
 	for (AstNode *node : *nodes) {
 		node->toStringF(str, f);
+		if (node->nodeType == TypedAssignmentNode) {
+			*str += ";";
+		}
 		str->append("\n\n");
 	}
 }
@@ -254,4 +257,17 @@ void Version::toStringF(std::string *str, FormatState *f) {
 	*str += "#version ";
 	*str += std::to_string(version);
 	*str += "\n";
+}
+
+void Precision::toStringF(std::string *str, FormatState *f) {
+	*str += "precision ";
+	*str += AstNode::precisionToString(qualifier);
+	*str += " ";
+	*str += AstNode::typeToStr(type);
+	*str += ";\n";
+}
+
+void UnaryMinus::toStringF(std::string *str, FormatState *f) {
+	*str += "-";
+	expr->toStringF(str, f);
 }

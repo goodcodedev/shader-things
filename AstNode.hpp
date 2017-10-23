@@ -27,6 +27,10 @@ enum AssignOp {
 	BitIncOrAssign
 };
 
+enum PrecisionQualifier {
+	Lowp, Mediump, Highp
+};
+
 enum NodeType {
 	SourceNode,
 	AttributeNode,
@@ -59,7 +63,9 @@ enum NodeType {
 	TypedAssignmentNode,
 	StructMemberNode,
 	StructDeclNode,
-	VersionNode
+	VersionNode,
+	PrecisionNode,
+	UnaryMinusNode
 };
 
 class FormatState {
@@ -115,6 +121,16 @@ public:
 		}
 		}
 	}
+	static std::string precisionToString(PrecisionQualifier precision) {
+		switch (precision) {
+		case Lowp: return "lowp";
+		case Mediump: return "mediump";
+		case Highp: return "highp";
+		default: {
+			return "<UNRECOGNIZED PRECISION>";
+		}
+		}
+	}
 	static std::string opAssignToStr(AssignOp op) {
 		switch (op) {
 		case PlusAssign: return "+=";
@@ -146,7 +162,25 @@ public:
 	void toString(std::string *str) {
 		for (AstNode *node : *nodes) {
 			node->toString(str);
+			if (node->nodeType == TypedAssignmentNode) {
+				*str += ";";
+			}
 		}
+	}
+	void toStringF(std::string *str, FormatState *f);
+};
+
+class Precision : public AstNode {
+public:
+	PrecisionQualifier qualifier;
+	Type type;
+	Precision(PrecisionQualifier qualifier, Type type) : AstNode(PrecisionNode), qualifier(qualifier), type(type) {}
+	void toString(std::string *str) {
+		*str += "precision ";
+		*str += AstNode::precisionToString(qualifier);
+		*str += " ";
+		*str += AstNode::typeToStr(type);
+		*str += ";";
 	}
 	void toStringF(std::string *str, FormatState *f);
 };
@@ -386,6 +420,17 @@ public:
 			else str->append("--");
 			str->append(name);
 		}
+	}
+	void toStringF(std::string *str, FormatState *f);
+};
+
+class UnaryMinus : public Expression {
+public:
+	Expression *expr;
+	UnaryMinus(Expression *expr) : Expression(UnaryMinusNode), expr(expr) {}
+	void toString(std::string *str) {
+		*str += "-";
+		expr->toString(str);
 	}
 	void toStringF(std::string *str, FormatState *f);
 };

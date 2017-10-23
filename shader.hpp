@@ -8,7 +8,7 @@ extern AstNode *result;
 FloatConst* floatc(double value);
 FloatConst* floatc(char *value);
 IntConst* intc(int value);
-Reference* ref(char *name);
+Reference* ref(std::string name);
 BracedExpr* braced(Expression* expr);
 
 TypeConstructor* vec2(std::initializer_list<Expression*> args);

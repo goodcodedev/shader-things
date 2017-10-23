@@ -12,7 +12,7 @@ IntConst* intc(int value) {
 	return new IntConst(value);
 }
 
-Reference* ref(const char *name) {
+Reference* ref(std::string name) {
 	return new Reference(name);
 }
 
@@ -52,9 +52,9 @@ AstNode* parseFile(std::string fileName) {
 	do {    
 		yyparse();
 	} while (!feof(yyin));
-	std::string str; 
-	result->toStringF(&str, new FormatState());
-	fprintf(stdout, str.c_str());
+	//std::string str; 
+	//result->toStringF(&str, new FormatState());
+	//fprintf(stdout, str.c_str());
 	return result;
 }
 

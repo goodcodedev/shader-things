@@ -82,6 +82,10 @@ extern int yylineno;
 %token STRUCT
 %token HASH
 %token VERSION
+%token PRECISION
+%token LOWP
+%token MEDIUMP
+%token HIGHP
 %type <ast> source
 %type <ast> function
 %type <ast> attribute_decl
@@ -105,6 +109,8 @@ extern int yylineno;
 %type <ast> struct_decl
 %type <vector> struct_members
 %type <ast> version_decl
+%type <ast> precision_decl
+%type <enm> precision_qualifier
 
 %%
 source: nodes { result = new Source(reinterpret_cast<std::vector<AstNode*>*>($1)); }
@@ -121,7 +127,17 @@ nodes:		/* empty */ {
 			| nodes global_decl		{ $$ = push_node<AstNode>($1, $2); }
 			| nodes struct_decl 	{ $$ = push_node<AstNode>($1, $2); }
 			| nodes version_decl	{ $$ = push_node<AstNode>($1, $2); }
+			| nodes precision_decl 	{ $$ = push_node<AstNode>($1, $2); }
 			;
+
+precision_decl: PRECISION precision_qualifier FLOAT { $$ = new Precision(static_cast<PrecisionQualifier>($2), Float); }
+				| PRECISION precision_qualifier INT { $$ = new Precision(static_cast<PrecisionQualifier>($2), Int); }
+				;
+
+precision_qualifier: LOWP { $$ = Lowp; }
+					| MEDIUMP { $$ = Mediump; }
+					| HIGHP { $$ = Highp; }
+					;
 
 version_decl: HASH VERSION INTCONST { $$ = new Version($3); };
 attribute_decl: ATTRIBUTE type IDENTIFIER SEMICOLON	{ $$ = new Attribute(itot($2), $3); };
@@ -222,6 +238,7 @@ expression: INTCONST { $$ = new IntConst($1); }
 			| expression MINUS expression { $$ = new MinusExpr(re<Expression>($1), re<Expression>($3)); }
 			| LEFT_PAREN expression RIGHT_PAREN { $$ = new BracedExpr(re<Expression>($2)); }
 			| expression comp_op expression { $$ = new Comparison(static_cast<CompOp>($2), re<Expression>($1), re<Expression>($3)); }
+			| MINUS expression { $$ = new UnaryMinus(re<Expression>($2)); }
 			;
 
 arg_list:	/* empty */ {

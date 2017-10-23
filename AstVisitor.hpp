@@ -37,6 +37,8 @@ public:
     virtual void visitStructMember(StructMember *member) = 0;
     virtual void visitStructDecl(StructDecl *decl) = 0;
     virtual void visitVersion(Version *version) = 0;
+    virtual void visitPrecision(Precision *precision) = 0;
+    virtual void visitUnaryMinus(UnaryMinus *expr) = 0;
 };
 
 class AstVisitorBase : public AstVisitor {
@@ -52,6 +54,7 @@ public:
                 case TypedAssignmentNode: visitTypedAssignment(static_cast<TypedAssignment*>(node)); break;
                 case StructDeclNode: visitStructDecl(static_cast<StructDecl*>(node)); break;
                 case VersionNode: visitVersion(static_cast<Version*>(node)); break;
+                case PrecisionNode: visitPrecision(static_cast<Precision*>(node)); break;
                 default: {}
             }
         }
@@ -81,6 +84,7 @@ public:
             case MinusExprNode: visitMinusExpr(static_cast<MinusExpr*>(node)); break;
             case BracedExprNode: visitBracedExpr(static_cast<BracedExpr*>(node)); break;
             case ComparisonNode: visitComparison(static_cast<Comparison*>(node)); break;
+            case UnaryMinusNode: visitUnaryMinus(static_cast<UnaryMinus*>(node)); break;
             default: {}
         }
     }
@@ -176,6 +180,8 @@ public:
         }
     }
     virtual void visitVersion(Version *version) {}
+    virtual void visitPrecision(Precision *precision) {}
+    virtual void visitUnaryMinus(UnaryMinus *expr) {}
 };
 
 // If you transform a node, then clean up/delete the previous one
@@ -194,13 +200,14 @@ private:
         // Check if equal, in which case return the current
         if (newNodes->size() == curNodes->size()) {
             bool isEqual = true;
-            for (int i = 0; i < int(curNodes->size()); i++) {
-                if (newNodes[i] != curNodes[i]) {
+            for (size_t i = 0; i < curNodes->size(); ++i) {
+                if ((*newNodes)[i] != (*curNodes)[i]) {
                     isEqual = false;
                     break;
                 }
             }
             if (isEqual) {
+                delete newNodes;
                 return curNodes;
             }
         }
@@ -235,6 +242,7 @@ public:
                 case TypedAssignmentNode: toVec<AstNode>(newNodes, visitTypedAssignment(static_cast<TypedAssignment*>(node))); break;
                 case StructDeclNode: toVec<AstNode>(newNodes, visitStructDecl(static_cast<StructDecl*>(node))); break;
                 case VersionNode: toVec<AstNode>(newNodes, visitVersion(static_cast<Version*>(node))); break;
+                case PrecisionNode: toVec<AstNode>(newNodes, visitPrecision(static_cast<Precision*>(node))); break;
                 default: { toVec<AstNode>(newNodes, node); }
             }
         }
@@ -249,6 +257,8 @@ public:
             case FunctionCallStmNode:   return visitFunctionCallStm(static_cast<FunctionCallStm*>(node));
             case PrePostFixStmNode:     return visitPrePostFixStm(static_cast<PrePostFixStm*>(node));
             case ReturnNode:            return visitReturn(static_cast<Return*>(node));
+            case IfNode:                return visitIf(static_cast<If*>(node));
+            case ForLoopNode:           return visitForLoop(static_cast<ForLoop*>(node));
             default: { return NULL; }
         }
     }
@@ -266,6 +276,7 @@ public:
             case MinusExprNode:         return visitMinusExpr(static_cast<MinusExpr*>(node));
             case BracedExprNode:        return visitBracedExpr(static_cast<BracedExpr*>(node));
             case ComparisonNode:        return visitComparison(static_cast<Comparison*>(node));
+            case UnaryMinusNode:        return visitUnaryMinus(static_cast<UnaryMinus*>(node));
             default: { return NULL; }
         }
     }
@@ -416,5 +427,11 @@ public:
     }
     virtual Version* visitVersion(Version *version) {
         return version;
+    }
+    virtual Precision* visitPrecision(Precision *precision) {
+        return precision;
+    }
+    virtual UnaryMinus* visitUnaryMinus(UnaryMinus *expr) {
+        return expr;
     }
 };

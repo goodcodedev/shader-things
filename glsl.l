@@ -6,7 +6,6 @@
 #else
 	#define __strdup strdup
 #endif
-
 %}
 %option yylineno
 
@@ -19,8 +18,9 @@ identifier {nondigit}({nondigit}|{digit})*
 %%
 
 <INITIAL>"/*" BEGIN(COMMENT);
+<COMMENT>[^*] { }
+<COMMENT>"*"+[^/] { }
 <COMMENT>"*/" BEGIN(INITIAL);
-<COMMENT>[^*\n]+ { }
 
 [ \t\n] /* empty */
 void { return VOID; }
@@ -44,6 +44,10 @@ else { return ELSE; }
 for { return FOR; }
 struct { return STRUCT; }
 version { return VERSION; }
+precision { return PRECISION; }
+lowp { return LOWP; }
+mediump { return MEDIUMP; }
+highp { return HIGHP; }
 \# { return HASH; }
 \{ { return LEFT_BRACE; }
 \} { return RIGHT_BRACE; }

@@ -86,7 +86,11 @@
      EQ = 302,
      STRUCT = 303,
      HASH = 304,
-     VERSION = 305
+     VERSION = 305,
+     PRECISION = 306,
+     LOWP = 307,
+     MEDIUMP = 308,
+     HIGHP = 309
    };
 #endif
 /* Tokens.  */
@@ -138,6 +142,10 @@
 #define STRUCT 303
 #define HASH 304
 #define VERSION 305
+#define PRECISION 306
+#define LOWP 307
+#define MEDIUMP 308
+#define HIGHP 309
 
 
 
@@ -154,7 +162,7 @@ typedef union YYSTYPE
 	int enm;
 }
 /* Line 1529 of yacc.c.  */
-#line 158 "../glsl.tab.h"
+#line 166 "../glsl.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
